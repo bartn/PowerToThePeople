@@ -8,13 +8,8 @@ from exceptions import KeyboardInterrupt
 from subprocess import check_output
 import pymongo  #http://api.mongodb.org/python/current/tutorial.html
 
-try:
-	import RPi.GPIO as GPIO		#Raspberry Pi
-except ImportError:
-	import BBIO.GPIO as GPIO	#Beaglebone Black
-	GPIO.BCM = None
-	GPIO.setmode = lambda x: None
 
+import RPi.GPIO as GPIO		#Raspberry Pi
 
 try:
 	from config import *
@@ -42,7 +37,7 @@ def	main():
 	GPIO.setup(ldr_gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 	_waitForLedFlash()	#Skip first led flash to get a proper duration for the first one we'll use
 
-	lastWattDataTime = lastPvOutputTime = lastLedFlashTime = time()	#first impression duration will be inaccurate
+	lastPvOutputTime = lastLedFlashTime = time()	#first impression duration will be inaccurate
 	nLedFlashes = 0
 	watt_data = []
 
@@ -50,33 +45,13 @@ def	main():
 		_waitForLedFlash()
 
 		now   = time()
-		nowJS = int(now * 1000)	#milliseconds. As in Javascript 'new Date().getTime()'
 		watt  = int(3600 / (now - lastLedFlashTime))
 		current_usage = '%s : %4d Watt' % (asctime(), watt)
 		lastLedFlashTime = now
 		nLedFlashes += 1
 
-		#print current_usage
+		print current_usage 	#check if double prints
 
-		CurrentWattage.update({'userId' : mongodb_userId}, {
-			'userId'    : mongodb_userId,		#UNIQUE INDEX
-			'createdAt' : nowJS, 
-			'watt'      : watt},
-			upsert = True)
-
-		watt_data.append(watt)
-		if mongodb_interval and now >= lastWattDataTime + mongodb_interval:
-			interval    = now - lastWattDataTime
-			averageWatt = float(sum(watt_data)) / len(watt_data)
-			Wattage.insert({
-				'userId'      : mongodb_userId,				#INDEX
-				'createdAt'   : nowJS,
-				'interval'    : interval,				#in seconds
-				'kWh'         : averageWatt * interval / 3600 / 1000,	#/ 1000 converts Wh -> kWH 
-				'averageWatt' : averageWatt,				#during interval (power used)
-				'watt'        : watt_data})
-			lastWattDataTime = now
-			watt_data = []
 
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
