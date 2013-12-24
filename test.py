@@ -8,10 +8,11 @@ from exceptions import KeyboardInterrupt
 from subprocess import check_output
 import pymongo  #http://api.mongodb.org/python/current/tutorial.html
 
+print 'dit is de test'
+
 try:
 	import RPi.GPIO as GPIO		#Raspberry Pi
 except ImportError:
-	import BBIO.GPIO as GPIO	#Beaglebone Black
 	GPIO.BCM = None
 	GPIO.setmode = lambda x: None
 
@@ -26,9 +27,10 @@ except ImportError:
 def _waitForLedFlash():
 	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Wait for a pin rising
 		sleep(0.01) #minimal sleep
-	sleep(0.25)	#debounce sleep
+	#sleep(0.25)	#debounce sleep
 	while GPIO.input(ldr_gpio_pin) == GPIO.HIGH:	#Make really really sure we get a LOW here
 		sleep(0.01) #minimal sleep
+	print 'bam'
 
 
 def	main():
@@ -44,7 +46,6 @@ def	main():
 
 	lastWattDataTime = lastPvOutputTime = lastLedFlashTime = time()	#first impression duration will be inaccurate
 	nLedFlashes = 0
-	watt_data = []
 
 	while True:
 		_waitForLedFlash()
@@ -56,34 +57,14 @@ def	main():
 		lastLedFlashTime = now
 		nLedFlashes += 1
 
-		#print current_usage
-
-		CurrentWattage.update({'userId' : mongodb_userId}, {
-			'userId'    : mongodb_userId,		#UNIQUE INDEX
-			'createdAt' : nowJS, 
-			'watt'      : watt},
-			upsert = True)
-
-		watt_data.append(watt)
-		if mongodb_interval and now >= lastWattDataTime + mongodb_interval:
-			interval    = now - lastWattDataTime
-			averageWatt = float(sum(watt_data)) / len(watt_data)
-			Wattage.insert({
-				'userId'      : mongodb_userId,				#INDEX
-				'createdAt'   : nowJS,
-				'interval'    : interval,				#in seconds
-				'kWh'         : averageWatt * interval / 3600 / 1000,	#/ 1000 converts Wh -> kWH 
-				'averageWatt' : averageWatt,				#during interval (power used)
-				'watt'        : watt_data})
-			lastWattDataTime = now
-			watt_data = []
+		print current_usage
 
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
 			watt_average = nLedFlashes * 3600 / interval #different meter
 		 	
-		 	#print 'Flashed %d' % nLedFlashes
-			#print 'interval %d' % interval
+		 	print 'Flashed %d' % nLedFlashes
+			print 'interval %d' % interval
 		 	print 'Watt Average %d' % watt_average
 		 	
 			payload = {
