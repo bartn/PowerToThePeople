@@ -42,6 +42,7 @@ def	main():
 	_waitForLedFlash()	#Skip first led flash to get a proper duration for the first one we'll use
 
 	lastPvOutputTime = lastLedFlashTime = time()	#first impression duration will be inaccurate
+	energy = 0
 	nLedFlashes = 0
 	watt_data = []
 
@@ -59,15 +60,19 @@ def	main():
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
 			watt_average = nLedFlashes * 3600 / interval #different meter
-		 	
+		 	energy 		= nLedFlashes
+
 		 	print 'Flashed %d' % nLedFlashes
 			print 'interval %d' % interval
 		 	print 'Watt Average %d' % watt_average
+		 	print 'Energy used %d' % energy
+
+
 		 	
 		 	sql = "INSERT INTO logdata(datetime, \
-		 	       wattaverage) \
-		 	       VALUES ('%s', '%s')" % \
-		 	       (strftime('%F %T'), watt_average)
+		 	       wattaverage, energy) \
+		 	       VALUES ('%s', '%s', '%s')" % \
+		 	       (strftime('%F %T'), watt_average, energy)
 		 	try:
 		 	   # Execute the SQL command
 		 	   cursor.execute(sql)
@@ -83,6 +88,7 @@ def	main():
 				'sid' : pvoutput_sid,
 				'd'   : strftime('%Y%m%d'),
 				't'   : strftime('%H:%M'),
+				'v3'  : energy,
 				'v4'  : watt_average
 				}
 			try:
