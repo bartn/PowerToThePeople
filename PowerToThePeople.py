@@ -6,8 +6,6 @@ from time import time, strftime, asctime, sleep
 from sys import stdout
 from exceptions import KeyboardInterrupt
 from subprocess import check_output
-import pymongo  #http://api.mongodb.org/python/current/tutorial.html
-
 
 import RPi.GPIO as GPIO		#Raspberry Pi
 
@@ -19,18 +17,17 @@ except ImportError:
 
 
 def _waitForLedFlash():
-	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Wait for a pin rising
+	while GPIO.input(ldr_gpio_pin) == GPIO.HIGH:	#Wait for a pin rising
 		sleep(0.01) #minimal sleep
 	sleep(0.25)	#debounce sleep
-	while GPIO.input(ldr_gpio_pin) == GPIO.HIGH:	#Make really really sure we get a LOW here
+	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Make really really sure we get a LOW here
 		sleep(0.01) #minimal sleep
 
 
 def	main():
-	connection = pymongo.Connection(mongodb_url)
-	Wattage = connection.mongolab001db.Wattage
-	CurrentWattage = connection.mongolab001db.CurrentWattage
-
+	#connection = pymongo.Connection(mongodb_url)
+ 	#Wattage = connection.mongolab001db.Wattage
+ 	#CurrentWattage = connection.mongolab001db.CurrentWattage
 	#simply connect ldr_gpio_pin to 3.3V because we use a pulldown resistor from software
 
 	GPIO.setmode(GPIO.BCM)
@@ -52,13 +49,12 @@ def	main():
 
 		print current_usage 	#check if double prints
 
-
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
 			watt_average = nLedFlashes * 3600 / interval #different meter
 		 	
-		 	#print 'Flashed %d' % nLedFlashes
-			#print 'interval %d' % interval
+		 	print 'Flashed %d' % nLedFlashes
+			print 'interval %d' % interval
 		 	print 'Watt Average %d' % watt_average
 		 	
 			payload = {
