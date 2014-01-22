@@ -8,13 +8,11 @@ from exceptions import KeyboardInterrupt
 from subprocess import check_output
 
 import RPi.GPIO as GPIO		#Raspberry Pi
-import MySQLdb #Mysql connector
+import MySQLdb 				#Mysql connector
 
 db = MySQLdb.connect(host="localhost", user="root", passwd="eindhoven", db="energylogging")
 
-#create a cursor for the select
 cursor = db.cursor()
-
 
 try:
 	from config import *
@@ -30,12 +28,7 @@ def _waitForLedFlash():
 	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Make really really sure we get a LOW here
 		sleep(0.01) #minimal sleep
 
-
 def	main():
-	#connection = pymongo.Connection(mongodb_url)
- 	#Wattage = connection.mongolab001db.Wattage
- 	#CurrentWattage = connection.mongolab001db.CurrentWattage
-	#simply connect ldr_gpio_pin to 3.3V because we use a pulldown resistor from software
 
 	GPIO.setmode(GPIO.BCM)
 	GPIO.setup(ldr_gpio_pin, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -67,12 +60,9 @@ def	main():
 		 	print 'Watt Average %d' % watt_average
 		 	print 'Energy used %d' % energy
 
-
-		 	
-		 	sql = "INSERT INTO logdata(datetime, \
-		 	       wattaverage, energy) \
-		 	       VALUES ('%s', '%s', '%s')" % \
-		 	       (strftime('%F %T'), watt_average, energy)
+		 	sql = "INSERT INTO logdata(wattaverage, energy) \
+		 	       VALUES ('%s', '%s')" % \
+		 	       watt_average, energy)
 		 	try:
 		 	   # Execute the SQL command
 		 	   cursor.execute(sql)
@@ -102,11 +92,9 @@ def	main():
 
 		stdout.flush()
 
-
 if __name__ == '__main__':
 	try:
 		main()
 	except KeyboardInterrupt:
 		print 'Interrupted by user'
 	GPIO.cleanup()
-
