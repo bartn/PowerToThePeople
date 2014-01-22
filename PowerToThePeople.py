@@ -62,7 +62,7 @@ def	main():
 
 		 	sql = "INSERT INTO logdata(wattaverage, energy) \
 		 	       VALUES ('%s', '%s')" % \
-		 	       watt_average, energy)
+		 	       (watt_average, energy)
 		 	try:
 		 	   # Execute the SQL command
 		 	   cursor.execute(sql)
