@@ -8,6 +8,13 @@ from exceptions import KeyboardInterrupt
 from subprocess import check_output
 
 import RPi.GPIO as GPIO		#Raspberry Pi
+import MySQLdb #Mysql connector
+
+db = MySQLdb.connect(host="localhost", user="root", passwd="eindhoven", db="energylogging")
+
+#create a cursor for the select
+cursor = db.cursor()
+
 
 try:
 	from config import *
@@ -56,6 +63,20 @@ def	main():
 		 	print 'Flashed %d' % nLedFlashes
 			print 'interval %d' % interval
 		 	print 'Watt Average %d' % watt_average
+		 	
+		 	sql = "INSERT INTO logger(time, \
+		 	       wattaverage) \
+		 	       VALUES ('%s', '%s')" % \
+		 	       (strftime('%Y%m%d %H:%M'), watt_average)
+		 	try:
+		 	   # Execute the SQL command
+		 	   cursor.execute(sql)
+		 	   # Commit your changes in the database
+		 	   db.commit()
+		 	   
+		 	except:
+		 	   # Rollback in case there is any error
+		 	   db.rollback()
 		 	
 			payload = {
 				'key' : pvoutput_key,

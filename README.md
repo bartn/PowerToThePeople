@@ -5,6 +5,8 @@ Use the flashing led of my electricity meter to compute my power consumption. Sh
 
 Install dependencies: sudo apt-get install python-requests python-rpi.gpio
 
+Mysql needs python-mysqldb
+
 Usage: sudo ./PowerToThePeople.py
 
 
