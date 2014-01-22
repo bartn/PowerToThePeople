@@ -64,10 +64,10 @@ def	main():
 			print 'interval %d' % interval
 		 	print 'Watt Average %d' % watt_average
 		 	
-		 	sql = "INSERT INTO logger(time, \
+		 	sql = "INSERT INTO logdata(datetime, \
 		 	       wattaverage) \
 		 	       VALUES ('%s', '%s')" % \
-		 	       (strftime('%Y%m%d %H:%M'), watt_average)
+		 	       (strftime('%F %T'), watt_average)
 		 	try:
 		 	   # Execute the SQL command
 		 	   cursor.execute(sql)
