@@ -27,6 +27,12 @@ def _waitForLedFlash():
 	sleep(0.25)	#debounce sleep
 	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Make really really sure we get a LOW here
 		sleep(0.01) #minimal sleep
+	sleep(0.25) #debounce sleep
+	while GPIO.input(ldr_gpio_pin) == GPIO.HIGH:	#Wait for a pin rising
+		sleep(0.01) #minimal sleep
+	sleep(0.25)	#debounce sleep
+	while GPIO.input(ldr_gpio_pin) == GPIO.LOW:	#Make really really sure we get a LOW here
+		sleep(0.01) #minimal sleep
 
 def	main():
 
@@ -43,7 +49,7 @@ def	main():
 		_waitForLedFlash()
 
 		now   = time()
-		watt  = int((3600 / (now - lastLedFlashTime))/2)
+		watt  = int((3600 / (now - lastLedFlashTime)))
 		current_usage = '%s : %4d Watt' % (asctime(), watt)
 		lastLedFlashTime = now
 		nLedFlashes += 1
@@ -52,8 +58,8 @@ def	main():
 
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
-			watt_average = nLedFlashes * 3600 / interval / 2 #different meter
-		 	energy 		= nLedFlashes / 2
+			watt_average = nLedFlashes * 3600 / interval #different meter
+		 	energy 		= nLedFlashes 
 
 		 	print 'Flashed %d' % nLedFlashes
 			print 'interval %d' % interval
