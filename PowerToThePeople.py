@@ -43,7 +43,7 @@ def	main():
 		_waitForLedFlash()
 
 		now   = time()
-		watt  = int(3600 / (now - lastLedFlashTime))
+		watt  = int((3600 / (now - lastLedFlashTime))/2)
 		current_usage = '%s : %4d Watt' % (asctime(), watt)
 		lastLedFlashTime = now
 		nLedFlashes += 1
@@ -52,8 +52,8 @@ def	main():
 
 		if pvoutput_interval and now >= lastPvOutputTime + pvoutput_interval:
 			interval     = now - lastPvOutputTime
-			watt_average = nLedFlashes * 3600 / interval #different meter
-		 	energy 		= nLedFlashes
+			watt_average = nLedFlashes * 3600 / interval / 2 #different meter
+		 	energy 		= nLedFlashes / 2
 
 		 	print 'Flashed %d' % nLedFlashes
 			print 'interval %d' % interval
@@ -78,7 +78,7 @@ def	main():
 				'sid' : pvoutput_sid,
 				'd'   : strftime('%Y%m%d'),
 				't'   : strftime('%H:%M'),
-				'v3'  : energy,
+				#'v3'  : energy,
 				'v4'  : watt_average
 				}
 			try:

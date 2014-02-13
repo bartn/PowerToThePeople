@@ -4,5 +4,4 @@
 *.pyo
 *.tmp
 config.py
-
 *.espressostorage
